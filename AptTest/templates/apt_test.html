@@ -1,0 +1,51 @@
+{% extends 'base.html' %} 
+{% block body_block %}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <div class="container">
+    <h1 class="p-2">{{quiz.name}}</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
+            {% for q in questions %}
+            <div class="py-4 ">
+                <div class="p-2">
+                    <p>{{q}}</p>
+                </div>
+                <div class="btn-group" role="group" aria-label="radio toggle button group">
+                    <input type="radio" class="btn-check" name="vbtn-radio {{q.pk}}" id="vbtn-radio1 {{q.pk}}" value="{{q.choices.ch1}}" autocomplete="off">
+                    <label class="btn btn-outline-danger" for="vbtn-radio1 {{q.pk}}">{{q.choices.ch1}}</label>
+                    
+                    <input type="radio" class="btn-check" name="vbtn-radio {{q.pk}}" id="vbtn-radio2 {{q.pk}}" value="{{q.choices.ch2}}" autocomplete="off">
+                    <label class="btn btn-outline-warning" for="vbtn-radio2 {{q.pk}}">{{q.choices.ch2}}</label>
+                    
+                    <input type="radio" class="btn-check" name="vbtn-radio {{q.pk}}" id="vbtn-radio3 {{q.pk}}" value="{{q.choices.ch3}}"a utocomplete="off">
+                    <label class="btn btn-outline-primary" for="vbtn-radio3 {{q.pk}}">{{q.choices.ch3}}</label>
+                    
+                    <input type="radio" class="btn-check" name="vbtn-radio {{q.pk}}" id="vbtn-radio4 {{q.pk}}" value="{{q.choices.ch4}}" autocomplete="off">
+                    <label class="btn btn-outline-success" for="vbtn-radio4 {{q.pk}}">{{q.choices.ch4}}</label>
+                    
+                    <input type="radio" class="btn-check" name="vbtn-radio {{q.pk}}" id="vbtn-radio5 {{q.pk}}" value="{{q.choices.ch5}}" autocomplete="off">
+                    <label class="btn btn-outline-info" for="vbtn-radio5 {{q.pk}}">{{q.choices.ch5}}</label>
+                    <br>
+                    
+                </div>
+            <br>
+        </div>
+        <hr>
+            {% endfor %}
+            
+
+            <button type="submit">Submit</button>
+        </form>
+    </div>
+</body>
+</html>
+
+{% endblock %}
