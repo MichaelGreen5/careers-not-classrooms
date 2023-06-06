@@ -10,11 +10,11 @@
 
 <div class="p-2">
     <h2>Careers</h2>
-    <Ul>
-    {% for job in careers %} 
-    <li>{{job}}</li>
+    <ol>
+    {% for match in best_matches %} 
+    <li>{{match.0}} - {{match.1}}% match</li>
     {% endfor %}
-</Ul>
+</ol>
 
 </div>
 

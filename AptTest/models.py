@@ -126,7 +126,34 @@ class Result(models.Model):
     
 
     def career_match(self, all_careers):
-        pass
+        career_match_list = [] # list of tuples(career obj, avg% match to user result)
+        for obj in all_careers:
+            result_dict = self.result_as_percent
+            career_dict = obj.holland_code_as_perc
+            common_keys = set(result_dict.keys()) & set(career_dict.keys())
+            percent_diff_dict = {}
+            
+            for key in common_keys:
+                v1 = result_dict[key]
+                v2 = career_dict[key]
+
+                diff = v2-v1
+                perc_diff = (diff/v1) * 100
+                percent_diff_dict[key] = perc_diff
+            
+            all_percents = 0
+            for v in percent_diff_dict.values():
+                all_percents += abs(v)
+                avg_perc_diff = all_percents / len(percent_diff_dict)
+                
+
+            career_obj, user_avg_perc_match = obj, abs(avg_perc_diff-100)
+            career_match_list.append((career_obj, round(user_avg_perc_match, 2)))
+        return career_match_list
+
+
+            
+
 
    
         

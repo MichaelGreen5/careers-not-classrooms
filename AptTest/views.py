@@ -44,15 +44,18 @@ def apt_results(request,pk):
     careers = Career.objects.all()
   
     result = Result.objects.get(user= request.user, quiz= quiz)
+    job_match_data = result.career_match(careers)
+    sorted_job_match_data = sorted(job_match_data, key = lambda x: x[1], reverse=True)
+    best_matches = sorted_job_match_data[:20]
 
     #match result with carrers
 
+
+
+
+
     
-
-
-
-    
-    return render(request, 'apt_results.html',{'quiz':quiz, 'result': result, 'careers' :careers})
+    return render(request, 'apt_results.html',{'quiz':quiz, 'result': result, 'best_matches' :best_matches})
 
 
 
