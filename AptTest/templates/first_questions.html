@@ -1,0 +1,44 @@
+{% extends 'base.html' %} 
+{% block body_block %}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <div class="container">
+    <h1 class="p-2">{{quiz.name}}</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="py-4 ">
+                <div class="p-2">
+                    <p>{{question}}</p>
+                </div>
+
+                <select class="form-select" aria-label="Default select example" name = "select {{question.pk}}" >
+                    <option selected>Select</option>
+                    {% for choice, key in choices.items %}
+                
+                
+                    <option value="{{key}}" id="question key {{key}}" >{{choice}}</option>
+                    {% endfor %}
+                  
+                  </select>
+            
+            <br>
+        </div>
+        <hr>
+           
+            
+
+            <button type="submit">Next</button>
+        </form>
+    </div>
+</body>
+</html>
+
+{% endblock %}

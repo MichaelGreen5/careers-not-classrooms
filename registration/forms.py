@@ -28,14 +28,15 @@ class CustomPasswordResetForm(PasswordResetForm):
     
 
 
-class CreateProfile(forms.ModelForm):
+class ProfileForm(forms.ModelForm):
 
     
     class Meta:
-        fields = ( 'dob', 'ed_level')
+        fields = ( 'dob',)
         model = Profile
 
         widgets = {
             'dob' : forms.DateInput(attrs={'type':'date'}),
-            'ed_level' : forms.Select()
+            # 'job_zone' : forms.Select()
         }
+

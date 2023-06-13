@@ -1,9 +1,9 @@
 from django.forms.models import BaseModelForm
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
-from django.views.generic import CreateView
-from registration.forms import SignUp, LoginForm, CustomPasswordResetForm
-from registration.forms import CreateProfile
+from django.views.generic import CreateView, UpdateView
+from registration.forms import SignUp, LoginForm, CustomPasswordResetForm, ProfileForm
+from registration.models import Profile
 from django.urls import reverse_lazy
 from django.contrib.auth.views import LoginView, PasswordResetView, PasswordResetConfirmView, PasswordResetDoneView, PasswordResetCompleteView
 from django.contrib.auth import login
@@ -35,7 +35,6 @@ class CustomLogin(LoginView):
 
 
 class CreateProfileView(CreateView):
-    form_class = CreateProfile
     template_name = 'profile.html'
     success_url = reverse_lazy('home')
 
@@ -46,8 +45,14 @@ class CreateProfileView(CreateView):
 
         return super().form_valid(form)
 
+#TODO profile to sort jobs by zone
+class UpdateProfileView(UpdateView):
+    model = Profile
+    form_class =  ProfileForm
+    template_name = 'update_profile.html'
+    success_url = reverse_lazy('AptTest:apt_test')
 
-
+ 
 
     
 

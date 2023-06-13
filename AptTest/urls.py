@@ -7,8 +7,9 @@ app_name = 'AptTest'
 
 urlpatterns = [
 
-# path('interest/<int:pk>/', views.Questionform, name = 'question'),
+path('apt-test-pre/', views.first_questions, name = 'first_questions'), 
 path('apt-test/', views.apt_test, name = 'apt_test'),
+
 path('apt-test/<int:pk>/result', views.apt_results, name = 'results'),
 
 

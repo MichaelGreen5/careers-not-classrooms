@@ -19,6 +19,23 @@ INTEREST_LEVEL = [
     (1, 'Like'),
     (2, 'Strongly Like')
 ]
+QUESTION_TYPES = [
+     (1, 'Holland Code'),
+    (2, 'Job Zone'),
+    (3, 'Work Activities'),
+    (4, 'General Skills'),
+    
+    
+]
+
+
+JOB_ZONE_CHOICES = [
+      (1,"Some High School"),
+      (2, "High School Diploma or GED"),
+      (3, "Associate's Degree or Vocational School"),
+      (4, "Bachelor's Degree"), 
+      (5, "Master's Degree or Higher")
+    ]
 
 def holland_json_as_percent(json_obj):
         result_as_perc = {}
@@ -31,10 +48,14 @@ def holland_json_as_percent(json_obj):
        
         return result_as_perc
 
+
+
 class Career(models.Model):
     name = models.CharField(max_length=256, null= True)
     holland_code_scores= models.JSONField(default=dict)
     holland_code_as_perc = models.JSONField(default=dict)
+    job_zone = models.IntegerField(default=0)
+    work_activities= models.JSONField(default=dict)
     
 
 
@@ -56,10 +77,16 @@ class Choices(models.Model):
     ch6 = models.CharField(max_length=200,null=True)
 
 
+    def __str__(self):
+        return self.ch1 + ", " + self.ch2 + ", " +self.ch3 + " etc..."
+
+
 class Question(models.Model):
     question = models.CharField(max_length=200,null=True)
     choices = models.ForeignKey(Choices, on_delete= models.CASCADE, null= True)
+    json_choices = models.JSONField(default=dict)
     trait_pos = models.CharField(max_length=350, null= True)
+    question_type = models.IntegerField(choices=QUESTION_TYPES, default=1)
    
     
     
@@ -107,17 +134,17 @@ class Quiz(models.Model):
     def __str__(self):
         return self.name
     
-    # ensures quiz results do not include negative numbers and are scaled accurately 
-    def scale_results(self):
-        pass
+
 
     
     
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete= models.CASCADE)
     quiz = models.ForeignKey(Quiz, on_delete= models.CASCADE)
-    result = models.JSONField(default=dict)
-    result_as_percent = models.JSONField(default=dict)
+    holland_result = models.JSONField(default=dict)
+    holland_result_as_percent = models.JSONField(default=dict)
+    job_zone = models.IntegerField(choices= JOB_ZONE_CHOICES, blank = True, default = 1)
+    work_activities = models.JSONField(default= dict)
     completed = models.BooleanField(default=False)
 
 
