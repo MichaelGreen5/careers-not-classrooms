@@ -12,6 +12,25 @@ HOLLAND_CODE_CHOICES = [
 
 ]
 
+WORK_ACTIVITIES = [
+    'Getting Information', 'Thinking Creatively', 'Processing Information', 'Working with Computers', 
+    'Handling and Moving Objects', 'Training and Teaching Others', 'Analyzing Data or Information', 
+    'Developing and Building Teams', 'Selling or Influencing Others', 'Staffing Organizational Units',
+    'Coaching and Developing Others', 'Scheduling Work and Activities', 'Assisting and Caring for Others',
+    'Documenting/Recording Information', 'Controlling Machines and Processes', 'Developing Objectives and Strategies',
+    'Monitoring and Controlling Resources', 'Performing Administrative Activities', 'Making Decisions and Solving Problems', 
+    'Updating and Using Relevant Knowledge', 'Performing General Physical Activities', 'Identifying Objects, Actions, and Events', 
+    'Organizing, Planning, and Prioritizing Work', 'Providing Consultation and Advice to Others', 'Coordinating the Work and Activities of Others', 
+    'Inspecting Equipment, Structures, or Materials', 'Repairing and Maintaining Electronic Equipment', 'Repairing and Maintaining Mechanical Equipment', 
+    'Guiding, Directing, and Motivating Subordinates', 'Resolving Conflicts and Negotiating with Others', 'Monitoring Processes, Materials, or Surroundings',
+    'Communicating with People Outside the Organization', 'Interpreting the Meaning of Information for Others', 
+    'Performing for or Working Directly with the Public', 'Operating Vehicles, Mechanized Devices, or Equipment',
+    'Judging the Qualities of Objects, Services, or People', 'Communicating with Supervisors, Peers, or Subordinates',
+    'Establishing and Maintaining Interpersonal Relationships', 'valuating Information to Determine Compliance with Standards',
+    'Drafting, Laying Out, and Specifying Technical Devices, Parts, and Equipment', 'Estimating the Quantifiable Characteristics of Products, Events, or Information'
+
+]
+
 INTEREST_LEVEL = [
     (-2, 'Strongly Dislike'),
     (-1, 'Dislike'),
@@ -37,7 +56,7 @@ JOB_ZONE_CHOICES = [
       (5, "Master's Degree or Higher")
     ]
 
-def holland_json_as_percent(json_obj):
+def json_as_percent(json_obj):
         result_as_perc = {}
         total_value = 0
         for key, value in json_obj:
@@ -56,6 +75,7 @@ class Career(models.Model):
     holland_code_as_perc = models.JSONField(default=dict)
     job_zone = models.IntegerField(default=0)
     work_activities= models.JSONField(default=dict)
+    work_activities_as_perc = models.JSONField(default=dict)
     
 
 
@@ -63,28 +83,17 @@ class Career(models.Model):
         return self.name
     
     def holland_code_perc(self):
-        return holland_json_as_percent(self.holland_code_scores.items())
+        return json_as_percent(self.holland_code_scores.items())
+
+    
     
 
 
 
-class Choices(models.Model):
-    ch1 = models.CharField(max_length=200,null=True)
-    ch2 = models.CharField(max_length=200,null=True)
-    ch3 = models.CharField(max_length=200,null=True)
-    ch4 = models.CharField(max_length=200,null=True)
-    ch5 = models.CharField(max_length=200,null=True)
-    ch6 = models.CharField(max_length=200,null=True)
-
-
-    def __str__(self):
-        return self.ch1 + ", " + self.ch2 + ", " +self.ch3 + " etc..."
-
 
 class Question(models.Model):
     question = models.CharField(max_length=200,null=True)
-    choices = models.ForeignKey(Choices, on_delete= models.CASCADE, null= True)
-    json_choices = models.JSONField(default=dict)
+    json_choices = models.JSONField(default=dict, )
     trait_pos = models.CharField(max_length=350, null= True)
     question_type = models.IntegerField(choices=QUESTION_TYPES, default=1)
    
@@ -94,12 +103,14 @@ class Question(models.Model):
     def __str__(self):
         return self.question
     
-    def score_ans(self, user_answer):
-        pts = 0
+    def score_holland_ans(self, answer_obj):
+        
+        pts = int(answer_obj.answer)
         ans = ('Realistic', pts)
-        for key in INTEREST_LEVEL:
-            if key[1] == user_answer:
-                pts = key[0]
+
+        # for key in INTEREST_LEVEL:
+        #     if key[1] == user_answer:
+        #         pts = key[0]
         #some trait_pos have two traits seperated by -
         if '-' in self.trait_pos:
             trait_pos_list = self.trait_pos.split("-")
@@ -112,6 +123,16 @@ class Question(models.Model):
                 traits.append(k)     
         ans= (traits, pts)  
         return ans
+    
+    def score_work_act_ans(self, answer_obj):
+        pts = int(answer_obj.answer)
+        ans = ('Getting Information', pts)
+        for value in WORK_ACTIVITIES:
+            if value == self.trait_pos:
+                ans = (value, pts)
+        
+        return ans
+
         
 
 
@@ -126,14 +147,29 @@ class Question(models.Model):
 
 class Quiz(models.Model):
     name = models.CharField(max_length=256, default= 'quiz')
+    user = models.ForeignKey(User, default= 1, on_delete= models.CASCADE)
     questions = models.ManyToManyField('Question', related_name= 'quiz_questions')
+    starter_questions = models.ManyToManyField('Question', related_name= 'starter_questions')
+    num_of_qs_left = models.IntegerField(default=10)
     score_key = models.JSONField(default=dict)
    
     
 
     def __str__(self):
-        return self.name
-    
+        return self.name + ' for ' + str(self.user)
+    #TODO make this work
+    def generate_question(self):
+        return [2,4,6,8]
+
+
+class Answer(models.Model):
+    user = models.ForeignKey(User, on_delete= models.CASCADE)
+    question = models.ForeignKey(Question, on_delete= models.CASCADE)
+    answer = models.TextField(max_length= 256, null = True, default = 0)
+
+    def __str__(self):
+        return str(self.user) + " answer to " + str(self.question)
+
 
 
     
@@ -145,37 +181,64 @@ class Result(models.Model):
     holland_result_as_percent = models.JSONField(default=dict)
     job_zone = models.IntegerField(choices= JOB_ZONE_CHOICES, blank = True, default = 1)
     work_activities = models.JSONField(default= dict)
+    work_activities_as_percent = models.JSONField(default=dict)
+    questions_asked = models.IntegerField(default=0)
     completed = models.BooleanField(default=False)
 
 
-    def calc_result_percent(self):
-        return holland_json_as_percent(self.result.items())
+    def calc_holland_result_percent(self):
+        return json_as_percent(self.holland_result.items())
     
-
+    def calc_work_result_percent(self):
+        return json_as_percent(self.work_activities.items())
+    
+    #TODO only compare traits that have actually been answered?
     def career_match(self, all_careers):
         career_match_list = [] # list of tuples(career obj, avg% match to user result)
         for obj in all_careers:
-            result_dict = self.result_as_percent
-            career_dict = obj.holland_code_as_perc
-            common_keys = set(result_dict.keys()) & set(career_dict.keys())
+            holland_result_dict = self.holland_result_as_percent
+            holland_career_dict = obj.holland_code_as_perc
+
+            work_act_result_dict = self.work_activities_as_percent
+            work_act_career_dict = obj.work_activities_as_perc
+            
+            holland_common_keys = set(holland_result_dict.keys()) & set(holland_career_dict.keys())
+            
+    
+            work_act_common_keys = set(work_act_result_dict.keys()) & set(work_act_career_dict.keys())
+            
+            combined_result_dict = work_act_result_dict | holland_result_dict
+            combined_career_dict = work_act_career_dict | holland_career_dict
+            
+            all_common_keys = holland_common_keys.union(work_act_common_keys)
+            
             percent_diff_dict = {}
             
-            for key in common_keys:
-                v1 = result_dict[key]
-                v2 = career_dict[key]
+           
+            
+            for key in all_common_keys:
+                v1 = combined_result_dict[key]
+                v2 = combined_career_dict[key]
 
                 diff = v2-v1
                 perc_diff = (diff/v1) * 100
                 percent_diff_dict[key] = perc_diff
+
+      
             
             all_percents = 0
+
+           
             for v in percent_diff_dict.values():
                 all_percents += abs(v)
                 avg_perc_diff = all_percents / len(percent_diff_dict)
                 
+                
 
             career_obj, user_avg_perc_match = obj, abs(avg_perc_diff-100)
             career_match_list.append((career_obj, round(user_avg_perc_match, 2)))
+
+        
         return career_match_list
 
 

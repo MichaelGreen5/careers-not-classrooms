@@ -7,14 +7,14 @@ os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'LaunchPad.settings')
 django.setup()
 
 def set_career_data_perc():
-    from AptTest.models import Career, holland_json_as_percent
+    from AptTest.models import Career, json_as_percent
 
     all_careers = Career.objects.all()
     for obj in all_careers:
-        obj.holland_code_as_perc = holland_json_as_percent(obj.holland_code_scores.items())
+        obj.work_activities_as_perc = json_as_percent(obj.work_activities.items())
         obj.save()
 
-
+set_career_data_perc()
 
 
 
@@ -118,6 +118,23 @@ def add_column_to_career(data):
 
 
 # add_column_to_career(data)
+from AptTest.models import Result
+def set_work_activities(result_obj):
+    out_dict = {}
+    json_obj = result_obj.work_activities
+    
+    for key, value in json_obj.items():
+        out_dict[key] = 2.5
+    result_obj.work_activities = out_dict
+    result_obj.save()
+        
+    
+
+
+# result_obj = Result.objects.get(pk=2)
+# set_work_activities(result_obj)
+        
+    
 
 
 

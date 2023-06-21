@@ -7,13 +7,11 @@ app_name = 'AptTest'
 
 urlpatterns = [
 
-path('apt-test-pre/', views.first_questions, name = 'first_questions'), 
-path('apt-test/', views.apt_test, name = 'apt_test'),
-
+path('question/<int:pk>/', views.first_question_view, name = 'first_question'), 
+path('interests/<int:pk>/', views.questions, name = 'question'),
+path('start/', views.start_quiz, name= 'start_quiz'),
 path('apt-test/<int:pk>/result', views.apt_results, name = 'results'),
 
 
 
 ]
-
-#TODO make quiz easy for new users. probably shouldn't include pk

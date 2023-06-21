@@ -1,0 +1,44 @@
+{% extends 'base.html' %} 
+{% block body_block %}
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test</title>
+</head>
+<body>
+    <div class="container">
+    <h1 class="p-2">{{question}}</h1>
+        <form method="POST" action="">
+            {% csrf_token %}
+            
+            <div class="py-4 ">
+               
+                <div class="btn-group" role="group" aria-label="radio toggle button group">
+                    {% for choice, key in choices.items %}
+                    <input type="radio" class="btn-check" name="vbtn-radio" id="{{choice}}" value="{{key}}" autocomplete="off">
+                    <label class="btn btn-outline-primary" for="{{choice}}">{{choice}}</label>
+                    {% endfor %}
+                    
+             
+                    
+                </div>
+            <br>
+        </div>
+        <hr>
+           
+            
+            <div class="p-2">
+                <button type="submit" class="btn btn-success ">Submit</button>
+            </div>
+        </form>
+        <div class="p-2">
+            <a class="btn btn-primary " href="{% url 'AptTest:results' pk=quiz.pk %}">Get Results</a>
+        </div>
+    </div>
+</body>
+</html>
+
+{% endblock %}
