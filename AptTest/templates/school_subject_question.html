@@ -1,0 +1,34 @@
+{% extends 'base.html' %} 
+{% block body_block %}
+<div class="container">
+    <div class="p-2">
+        <h1>Rate how much you enjoyed each of the following subjects in school</h1>
+    </div>
+    <div class="p-2">
+        <form method="POST" action="">
+            {% csrf_token %}
+            <label for="customRange1" class="form-label">Math</label>
+            <input type="range" class="form-range" name="Subject" id="customRange1">
+            <br>
+            <label for="customRange1" class="form-label">Science</label>
+            <input type="range" class="form-range" name="Subject" id="customRange1">
+            <br>
+            <label for="customRange1" class="form-label">History</label>
+            <input type="range" class="form-range" name="Subject" id="customRange1">
+            <br>
+            <label for="customRange1" class="form-label">English</label>
+            <input type="range" class="form-range" name="Subject" id="customRange1">
+            <br>
+            <label for="customRange1" class="form-label">Gym</label>
+            <input type="range" class="form-range" name="Subject" id="customRange1">
+            <div class="p-2">
+                <button type="submit" class="btn btn-success ">Next</button>
+            </div>
+        </form>
+        <div class="p-2">
+            <a class="btn btn-primary " href="{% url 'AptTest:results' pk=quiz.pk %}">Get Results</a>
+        </div>
+    </div>
+</div>
+
+{% endblock %} 

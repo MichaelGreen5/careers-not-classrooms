@@ -67,7 +67,11 @@ def json_as_percent(json_obj):
        
         return result_as_perc
 
-
+def get_top_results(input_data_dict, num_of_results):
+        sorted_data =  dict(sorted(input_data_dict.items(), key=lambda x: x[1], reverse=True))
+        top_traits_list= list(sorted_data.items())[:num_of_results]
+        top_traits = [trait[0] for trait in top_traits_list]
+        return top_traits
 
 class Career(models.Model):
     name = models.CharField(max_length=256, null= True)
@@ -84,6 +88,21 @@ class Career(models.Model):
     
     def holland_code_perc(self):
         return json_as_percent(self.holland_code_scores.items())
+    
+    
+    def get_top_two_holland(self):
+        return get_top_results(self.holland_code_as_perc, 2)
+      
+    
+    def get_top_five_work_activites(self):
+        return get_top_results(self.work_activities_as_perc, 5)
+   
+
+    
+
+    
+    
+
 
     
     
@@ -103,44 +122,24 @@ class Question(models.Model):
     def __str__(self):
         return self.question
     
-    def score_holland_ans(self, answer_obj):
-        
-        pts = int(answer_obj.answer)
-        ans = ('Realistic', pts)
-
-        # for key in INTEREST_LEVEL:
-        #     if key[1] == user_answer:
-        #         pts = key[0]
-        #some trait_pos have two traits seperated by -
-        if '-' in self.trait_pos:
-            trait_pos_list = self.trait_pos.split("-")
-        else:
-            trait_pos_list = self.trait_pos
-        
-        traits = []       
-        for k in HOLLAND_CODE_CHOICES:
-            if k in trait_pos_list:
-                traits.append(k)     
-        ans= (traits, pts)  
-        return ans
     
-    def score_work_act_ans(self, answer_obj):
-        pts = int(answer_obj.answer)
-        ans = ('Getting Information', pts)
-        for value in WORK_ACTIVITIES:
-            if value == self.trait_pos:
-                ans = (value, pts)
-        
-        return ans
-
-        
-
-
-
     
 
+    def score_ans(self, answer_obj, CHOICES):
+            pts = int(answer_obj.answer)
+            ans = ('', pts)
+            if '-' in self.trait_pos:
+                trait_pos_list = self.trait_pos.split("-")
+            else:
+                trait_pos_list = self.trait_pos
+            traits = []
+            for value in CHOICES:
+                if value in trait_pos_list:
+                    traits.append(value)
 
-
+                    ans = (traits, pts)
+            
+            return ans
 
 
 
@@ -192,9 +191,11 @@ class Result(models.Model):
     def calc_work_result_percent(self):
         return json_as_percent(self.work_activities.items())
     
-    #TODO only compare traits that have actually been answered?
+    #TODO use top results to better match
     def career_match(self, all_careers):
         career_match_list = [] # list of tuples(career obj, avg% match to user result)
+       
+        
         for obj in all_careers:
             holland_result_dict = self.holland_result_as_percent
             holland_career_dict = obj.holland_code_as_perc
@@ -206,11 +207,13 @@ class Result(models.Model):
             
     
             work_act_common_keys = set(work_act_result_dict.keys()) & set(work_act_career_dict.keys())
+
+            all_common_keys = holland_common_keys.union(work_act_common_keys)
             
             combined_result_dict = work_act_result_dict | holland_result_dict
             combined_career_dict = work_act_career_dict | holland_career_dict
             
-            all_common_keys = holland_common_keys.union(work_act_common_keys)
+            
             
             percent_diff_dict = {}
             

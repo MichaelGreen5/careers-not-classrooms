@@ -7,10 +7,11 @@ app_name = 'AptTest'
 
 urlpatterns = [
 
-path('question/<int:pk>/', views.first_question_view, name = 'first_question'), 
-path('interests/<int:pk>/', views.questions, name = 'question'),
+path('first-question/<int:pk>/', views.first_question_view, name = 'first_question'), 
+path('question/<int:pk>/', views.questions, name = 'question'),
 path('start/', views.start_quiz, name= 'start_quiz'),
 path('apt-test/<int:pk>/result', views.apt_results, name = 'results'),
+path('school-sub/', views.school_sub_question, name = 'school_sub_question'),
 
 
 
